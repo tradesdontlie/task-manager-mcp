@@ -1,31 +1,36 @@
-<h1 align="center">MCP-Mem0: Long-Term Memory for AI Agents</h1>
+# Task Manager MCP Server
 
-<p align="center">
-  <img src="public/Mem0AndMCP.png" alt="Mem0 and MCP Integration" width="600">
-</p>
-
-A template implementation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server integrated with [Mem0](https://mem0.ai) for providing AI agents with persistent memory capabilities.
-
-Use this as a reference point to build your MCP servers yourself, or give this as an example to an AI coding assistant and tell it to follow this example for structure and code correctness!
+A template implementation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for managing tasks and projects. This server provides a comprehensive task management system with support for project organization, task tracking, and PRD parsing.
 
 ## Overview
 
-This project demonstrates how to build an MCP server that enables AI agents to store, retrieve, and search memories using semantic search. It serves as a practical template for creating your own MCP servers, simply using Mem0 and a practical example.
+This project demonstrates how to build an MCP server that enables AI agents to manage tasks, track project progress, and break down Product Requirements Documents (PRDs) into actionable tasks. It serves as a practical template for creating your own MCP servers with task management capabilities.
 
 The implementation follows the best practices laid out by Anthropic for building MCP servers, allowing seamless integration with any MCP-compatible client.
 
 ## Features
 
-The server provides three essential memory management tools:
+The server provides several essential task management tools:
 
-1. **`save_memory`**: Store any information in long-term memory with semantic indexing
-2. **`get_all_memories`**: Retrieve all stored memories for comprehensive context
-3. **`search_memories`**: Find relevant memories using semantic search
+1. **Task Management**
+   - `create_task_file`: Create new project task files
+   - `add_task`: Add tasks to projects with descriptions and subtasks
+   - `update_task_status`: Update the status of tasks and subtasks
+   - `get_next_task`: Get the next uncompleted task from a project
+
+2. **Project Planning**
+   - `parse_prd`: Convert PRDs into structured tasks automatically
+   - `expand_task`: Break down tasks into smaller, manageable subtasks
+   - `estimate_task_complexity`: Estimate task complexity and time requirements
+   - `get_task_dependencies`: Track task dependencies
+
+3. **Development Support**
+   - `generate_task_file`: Generate file templates based on task descriptions
+   - `suggest_next_actions`: Get AI-powered suggestions for next steps
 
 ## Prerequisites
 
 - Python 3.12+
-- Supabase or any PostgreSQL database (for vector storage of memories)
 - API keys for your chosen LLM provider (OpenAI, OpenRouter, or Ollama)
 - Docker if running the MCP server as a container (recommended)
 
@@ -77,51 +82,118 @@ The following environment variables can be configured in your `.env` file:
 | `LLM_PROVIDER` | LLM provider (openai, openrouter, or ollama) | `openai` |
 | `LLM_BASE_URL` | Base URL for the LLM API | `https://api.openai.com/v1` |
 | `LLM_API_KEY` | API key for the LLM provider | `sk-...` |
-| `LLM_CHOICE` | LLM model to use | `gpt-4o-mini` |
-| `EMBEDDING_MODEL_CHOICE` | Embedding model to use | `text-embedding-3-small` |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:port/db` |
+| `LLM_CHOICE` | LLM model to use for task analysis | `gpt-4` |
 
 ## Running the Server
 
-### Using uv
-
-#### SSE Transport
+### Using Python 3
 
 ```bash
 # Set TRANSPORT=sse in .env then:
-uv run src/main.py
+python3 src/main.py
 ```
 
-The MCP server will essentially be run as an API endpoint that you can then connect to with config shown below.
-
-#### Stdio Transport
-
-With stdio, the MCP client iself can spin up the MCP server, so nothing to run at this point.
+The server will start on the configured host and port (default: http://0.0.0.0:8050).
 
 ### Using Docker
 
-#### SSE Transport
-
 ```bash
-docker run --env-file .env -p:8050:8050 mcp/mem0
+docker build -t task-manager-mcp .
+docker run --env-file .env -p 8050:8050 task-manager-mcp
 ```
 
-The MCP server will essentially be run as an API endpoint within the container that you can then connect to with config shown below.
+## Using the Task Manager
 
-#### Stdio Transport
+### Creating a New Project
 
-With stdio, the MCP client iself can spin up the MCP server container, so nothing to run at this point.
+1. Create a task file for your project:
+```python
+await mcp.create_task_file(project_name="my-project")
+```
+
+2. Add tasks to your project:
+```python
+await mcp.add_task(
+    project_name="my-project",
+    title="Setup Development Environment",
+    description="Configure the development environment with required tools",
+    subtasks=[
+        "Install dependencies",
+        "Configure linters",
+        "Set up testing framework"
+    ]
+)
+```
+
+3. Parse a PRD to create tasks automatically:
+```python
+await mcp.parse_prd(
+    project_name="my-project",
+    prd_content="# Your PRD content..."
+)
+```
+
+### Managing Tasks
+
+1. Update task status:
+```python
+await mcp.update_task_status(
+    project_name="my-project",
+    task_title="Setup Development Environment",
+    subtask_title="Install dependencies",
+    status="done"
+)
+```
+
+2. Get the next task to work on:
+```python
+next_task = await mcp.get_next_task(project_name="my-project")
+```
+
+3. Expand a task into subtasks:
+```python
+await mcp.expand_task(
+    project_name="my-project",
+    task_title="Implement Authentication"
+)
+```
+
+### Development Workflow
+
+1. Generate a file template for a task:
+```python
+await mcp.generate_task_file(
+    project_name="my-project",
+    task_title="User Authentication"
+)
+```
+
+2. Get task complexity estimate:
+```python
+complexity = await mcp.estimate_task_complexity(
+    project_name="my-project",
+    task_title="User Authentication"
+)
+```
+
+3. Get suggestions for next actions:
+```python
+suggestions = await mcp.suggest_next_actions(
+    project_name="my-project",
+    task_title="User Authentication"
+)
+```
 
 ## Integration with MCP Clients
 
 ### SSE Configuration
 
-Once you have the server running with SSE transport, you can connect to it using this configuration:
+To connect to the server using SSE transport, use this configuration:
 
 ```json
 {
   "mcpServers": {
-    "mem0": {
+    "task-manager": {
       "transport": "sse",
       "url": "http://localhost:8050/sse"
     }
@@ -129,72 +201,21 @@ Once you have the server running with SSE transport, you can connect to it using
 }
 ```
 
-> **Note for Windsurf users**: Use `serverUrl` instead of `url` in your configuration:
-> ```json
-> {
->   "mcpServers": {
->     "mem0": {
->       "transport": "sse",
->       "serverUrl": "http://localhost:8050/sse"
->     }
->   }
-> }
-> ```
+### Stdio Configuration
 
-> **Note for n8n users**: Use host.docker.internal instead of localhost since n8n has to reach outside of it's own container to the host machine:
-> 
-> So the full URL in the MCP node would be: http://host.docker.internal:8050/sse
-
-Make sure to update the port if you are using a value other than the default 8050.
-
-### Python with Stdio Configuration
-
-Add this server to your MCP configuration for Claude Desktop, Windsurf, or any other MCP client:
+For stdio transport, use this configuration:
 
 ```json
 {
   "mcpServers": {
-    "mem0": {
-      "command": "your/path/to/mcp-mem0/.venv/Scripts/python.exe",
-      "args": ["your/path/to/mcp-mem0/src/main.py"],
+    "task-manager": {
+      "command": "python3",
+      "args": ["src/main.py"],
       "env": {
         "TRANSPORT": "stdio",
         "LLM_PROVIDER": "openai",
-        "LLM_BASE_URL": "https://api.openai.com/v1",
         "LLM_API_KEY": "YOUR-API-KEY",
-        "LLM_CHOICE": "gpt-4o-mini",
-        "EMBEDDING_MODEL_CHOICE": "text-embedding-3-small",
-        "DATABASE_URL": "YOUR-DATABASE-URL"
-      }
-    }
-  }
-}
-```
-
-### Docker with Stdio Configuration
-
-```json
-{
-  "mcpServers": {
-    "mem0": {
-      "command": "docker",
-      "args": ["run", "--rm", "-i", 
-               "-e", "TRANSPORT", 
-               "-e", "LLM_PROVIDER", 
-               "-e", "LLM_BASE_URL", 
-               "-e", "LLM_API_KEY", 
-               "-e", "LLM_CHOICE", 
-               "-e", "EMBEDDING_MODEL_CHOICE", 
-               "-e", "DATABASE_URL", 
-               "mcp/mem0"],
-      "env": {
-        "TRANSPORT": "stdio",
-        "LLM_PROVIDER": "openai",
-        "LLM_BASE_URL": "https://api.openai.com/v1",
-        "LLM_API_KEY": "YOUR-API-KEY",
-        "LLM_CHOICE": "gpt-4o-mini",
-        "EMBEDDING_MODEL_CHOICE": "text-embedding-3-small",
-        "DATABASE_URL": "YOUR-DATABASE-URL"
+        "LLM_CHOICE": "gpt-4"
       }
     }
   }
@@ -203,9 +224,9 @@ Add this server to your MCP configuration for Claude Desktop, Windsurf, or any o
 
 ## Building Your Own Server
 
-This template provides a foundation for building more complex MCP servers. To build your own:
+This template provides a foundation for building more complex task management MCP servers. To extend it:
 
-1. Add your own tools by creating methods with the `@mcp.tool()` decorator
-2. Create your own lifespan function to add your own dependencies (clients, database connections, etc.)
-3. Modify the `utils.py` file for any helper functions you need for your MCP server
-4. Feel free to add prompts and resources as well  with `@mcp.resource()` and `@mcp.prompt()`
+1. Add new task management tools using the `@mcp.tool()` decorator
+2. Implement custom task analysis and automation features
+3. Add project-specific task templates and workflows
+4. Integrate with your existing development tools and processes

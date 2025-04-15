@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+src/main.py
+src/task_manager.py
+src/mcp_server.egg-info/PKG-INFO
+src/mcp_server.egg-info/SOURCES.txt
+src/mcp_server.egg-info/dependency_links.txt
+src/mcp_server.egg-info/requires.txt
+src/mcp_server.egg-info/top_level.txt
