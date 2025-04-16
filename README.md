@@ -79,10 +79,6 @@ The following environment variables can be configured in your `.env` file:
 | `TRANSPORT` | Transport protocol (sse or stdio) | `sse` |
 | `HOST` | Host to bind to when using SSE transport | `0.0.0.0` |
 | `PORT` | Port to listen on when using SSE transport | `8050` |
-| `LLM_PROVIDER` | LLM provider (openai, openrouter, or ollama) | `openai` |
-| `LLM_BASE_URL` | Base URL for the LLM API | `https://api.openai.com/v1` |
-| `LLM_API_KEY` | API key for the LLM provider | `sk-...` |
-| `LLM_CHOICE` | LLM model to use for task analysis | `gpt-4` |
 
 ## Running the Server
 
