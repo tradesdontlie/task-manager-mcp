@@ -1,0 +1,43 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - llmProvider
+      - llmApiKey
+    properties:
+      transport:
+        type: string
+        default: stdio
+        description: Transport protocol for MCP server (stdio or sse)
+      llmProvider:
+        type: string
+        description: LLM provider to use (e.g., openai, openrouter, ollama)
+      llmApiKey:
+        type: string
+        description: API key for the chosen LLM provider
+      llmChoice:
+        type: string
+        default: gpt-4
+        description: LLM model choice
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'python3',
+      args: ['src/main.py'],
+      env: {
+        TRANSPORT: config.transport,
+        LLM_PROVIDER: config.llmProvider,
+        LLM_API_KEY: config.llmApiKey,
+        LLM_CHOICE: config.llmChoice
+      }
+    })
+  exampleConfig:
+    transport: stdio
+    llmProvider: openai
+    llmApiKey: sk-EXAMPLEKEY
+    llmChoice: gpt-4
