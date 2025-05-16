@@ -1,4 +1,5 @@
 # Task Manager MCP Server
+[![smithery badge](https://smithery.ai/badge/@tradesdontlie/task-manager-mcp)](https://smithery.ai/server/@tradesdontlie/task-manager-mcp)
 
 A template implementation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for managing tasks and projects. This server provides a comprehensive task management system with support for project organization, task tracking, and PRD parsing.
 
@@ -35,6 +36,14 @@ The server provides several essential task management tools:
 - Docker if running the MCP server as a container (recommended)
 
 ## Installation
+
+### Installing via Smithery
+
+To install Task Manager for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@tradesdontlie/task-manager-mcp):
+
+```bash
+npx -y @smithery/cli install @tradesdontlie/task-manager-mcp --client claude
+```
 
 ### Using uv
 
